@@ -3,7 +3,10 @@ import pandas as pd
 import numpy as np
 from PIL import Image
 import cv2
+from pdf2image import convert_from_path, convert_from_bytes
 from ..utillibs import Util
+
+images = convert_from_path('test.pdf')
 
 class ImageComp(object):
     ARG_INDEX = ['target', 'source', 'histCorr', 'histBhat', 'AKAZE', 'ORB']
