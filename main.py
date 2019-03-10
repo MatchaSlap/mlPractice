@@ -11,16 +11,16 @@ OUTPUT_DIR = BASE_DIR / 'output'
 # DataPath(string)
 sINPUT_DIR = str(INPUT_DIR) + "/"
 sOUTPUT_DIR = str(OUTPUT_DIR) + "/"
-#
-# #Time-Start
-# start = time.time()
-#
-# # Proc
-# im = ImageComp(sINPUT_DIR, sOUTPUT_DIR)
-# im.execCompAll()
-#
-# #Time-End
-# procTime = time.time() - start
-#
-# # End
-# print("procTime:",procTime)
+
+#Time-Start
+start = time.time()
+
+# Proc
+im = ImageComp(sINPUT_DIR, sOUTPUT_DIR)
+im.execCompAll()
+
+#Time-End
+procTime = time.time() - start
+
+# End
+print("procTime:",procTime)
