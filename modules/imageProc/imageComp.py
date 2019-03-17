@@ -31,6 +31,7 @@ class ImageComp(object):
             # 読み込み処理をあとで書く
             dfVal = __loadVal(FEATURE_FILE)
 
+
         # CompareFeature
         # self.__comp(dfVal=dfVal, OUTFILE=outFile)
 
@@ -67,6 +68,15 @@ class ImageComp(object):
                 psComp.to_csv(self.OUTPUT_DIR + OUTFILE, mode='a')
                 # dfComp.append(psComp, ignore_index=True)
 
+    def __compHist(self, dfHist, TARGET=None):
+        for i, irow in dfHist.iterrows():
+            if TARGET_FILE != None and irow['name'] != TARGET_FILE:
+                continue
+            for j, jrow in dfHist.iterrows():
+                if i==j:
+                    continue
+                psComp = self.__compVal(irow, jrow)
+                psComp.to_csv(self.OUTPUT_DIR + OUTFILE, mode='a')
 
     # # 特徴量の比較
     # def __comp(self, TARGET_FILE=None):
@@ -90,7 +100,8 @@ class ImageComp(object):
         FEATURE_AKAZE = self.OUTPUT_DIR + "feature_" + self.NO + "_AKAZE" + ".csv"
         FEATURE_ORB = self.OUTPUT_DIR + "feature_" + self.NO + "_ORB" + ".csv"
         # Save(hist)
-        df_hist = pd.DataFrame(listVal['hist'].T)
+        df = pd.DataFrame(listVal['hist'].T)
+        df_hist = pd.concat([pd.DataFrame([[listVal['name']]]*len(df)),df], axis=1)
         df_hist.to_csv(FEATURE_HIST, mode="a", header=False)
         # Save(AKAZE)
         df = pd.DataFrame(listVal['AKAZE'])
