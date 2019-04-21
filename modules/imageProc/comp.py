@@ -3,18 +3,56 @@ import pandas as pd
 import numpy as np
 from PIL import Image
 import cv2
-import pathlib
-# from pdf2image import convert_from_path, convert_from_bytes
 from ..utillibs import Util
 
+"""
+特徴比較クラス
+"""
+class Comp(object):
+    OUT_COLS = ['source','res']
+    def __init__(self):
+        pass
 
-class ImageComp(object):
-    ARG_INDEX = ['target', 'source', 'histCorr', 'histBhat', 'AKAZE', 'ORB']
-    ARGS = ['histCorr', 'histBhat', 'AKAZE', 'ORB']
-    def __init__(self, INPUT_BASE, OUTPUT_BASE, FEATURE_BASE):
-        self.INPUT_BASE = INPUT_BASE
-        self.OUTPUT_BASE = OUTPUT_BASE
-        self.FEATURE_BASE = FEATURE_BASE
+    def compBFM(self, desT, desS):
+        bf = cv2.BFMatcher(cv2.NORM_HAMMING)
+        matches = bf.match(desT, desS)
+        dist = [m.distance for m in matches]
+        ret = sum(dist) / len(dist)
+        return ret
+
+    def __comp(self, f1, f2, kind=None):
+        pass
+
+    def execComp(self, target, sources, kind=None):
+        pass
+
+    def compFeature(self, target, sources, kind=None):
+        lOut = []
+        # Load Target Feature
+        ftT = np.load(target)
+        nameT = os.path.basename(target)
+        # Load Source Feature
+        for s in sources:
+            ftS = np.load(s)
+            nameS = os.path.basename(s)
+            res = self.__comp(ftT, ftS, kind)
+            lOut.append([nameS, res])
+        return pd.DataFrame(lOut, columns=self.OUT_COLS)
+
+    def saveComp(self, pdOut, name):
+        pass
+
+
+    def compFeatures(self, targets, sources, kind=None):
+        pass
+
+
+
+
+
+
+
+
 
     def __initComp(self, args=None):
         self.NO = Util.getNow()
@@ -25,12 +63,16 @@ class ImageComp(object):
         self.OUTPUT_DIR = str(pOutput) + "/"
         self.FEATURE_DIR = str(pFeature) + "/"
         # 処理対象のアルゴリズム
-        self.ARGS = ImageComp.ARGS
+        self.ARGS = Comp.ARGS
         if args != None self.ARGS = args
+
 
     def execComp(self, feature_dir=None, arg=None, target):
         self.__initComp(arg)
         files = os.listdir(self.INPUT_BASE)
+
+        # calc target feature
+
 
         # calc source feature
         for file in files:
@@ -59,7 +101,7 @@ class ImageComp(object):
 
 
     # def __comp(self, dfVal, OUTFILE, TARGET_FILE=None):
-    #     dfComp = pd.DataFrame(columns=ImageComp.ARG_INDEX)
+    #     dfComp = pd.DataFrame(columns=Comp.ARG_INDEX)
     #     print(dfVal)
     #     for i, irow in dfVal.iterrows():
     #         if TARGET_FILE != None and irow['name'] != TARGET_FILE:
@@ -97,7 +139,7 @@ class ImageComp(object):
     #     # Target
     #     valT = self.__calcVal(TARGET_FILE)
     #     # Comp
-    #     df = pd.DataFrame(columns=ImageComp.ARG_INDEX)
+    #     df = pd.DataFrame(columns=Comp.ARG_INDEX)
     #     files = os.listdir(self.INPUT_DIR)
     #     for file in files:
     #         if file == '.DS_Store' or file == TARGET_FILE:
@@ -150,7 +192,7 @@ class ImageComp(object):
 
     # 特徴量の比較
     def __compVal(self, psValT, psValS):
-        ps = pd.Series(index=ImageComp.ARG_INDEX)
+        ps = pd.Series(index=Comp.ARG_INDEX)
         ps['target'] = psValT['name']
         ps['source'] = psValS['name']
         # 'histCorr', 'histBhat', 'AKAZE', 'ORB'
@@ -162,42 +204,6 @@ class ImageComp(object):
         ps['ORB'] = self.compBFM(valT['ORB'], valS['ORB'])
         # out
         return ps
-
-    # # 特徴量の比較
-    # def __compVal(self, valT,valS):
-    #     data = []
-    #     data.append(valT['name'])
-    #     data.append(valS['name'])
-    #     # comp(Histgram-Corr,Bhattacharyya)
-    #     data.append(cv2.compareHist(valT['hist'], valS['hist'], 0))
-    #     data.append(cv2.compareHist(valT['hist'], valS['hist'], 3))
-    #     # comp(BFM-AKAZE,ORB)
-    #     data.append(self.compBFM(valT['AKAZE'], valS['AKAZE']))
-    #     data.append(self.compBFM(valT['ORB'], valS['ORB']))
-    #     # out
-    #     return pd.Series(data=data, index=ImageComp.ARG_INDEX)
-
-    ##-----------------------
-    ## CalcFeature
-    ##-----------------------
-    def calcHist(self, img, IMG_SIZE=(200,200)):
-        if IMG_SIZE != None:
-            img = cv2.resize(img, IMG_SIZE)
-        hist = cv2.calcHist([img],[0], None, [256], [0, 256])
-        return hist
-
-    def calcAKAZE(self, img, IMG_SIZE=(200,200)):
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        detector = cv2.AKAZE_create()
-        (kp, des) = detector.detectAndCompute(img, None)
-        print(type(des),des.shape)
-        return des
-
-    def calcORB(self, img, IMG_SIZE=(200,200)):
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        detector = cv2.ORB_create()
-        (kp, des) = detector.detectAndCompute(img, None)
-        return des
 
     ##-----------------------
     ## CompFeature
